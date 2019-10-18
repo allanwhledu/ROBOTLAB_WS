@@ -1,0 +1,8 @@
+prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
+
+Name: gazebo_dev
+Description: Description of gazebo_dev
+Version: 2.8.5
+Cflags: 
+Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
+Requires: 

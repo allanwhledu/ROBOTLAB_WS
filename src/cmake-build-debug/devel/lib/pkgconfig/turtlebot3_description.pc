@@ -1,0 +1,8 @@
+prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
+
+Name: turtlebot3_description
+Description: Description of turtlebot3_description
+Version: 1.2.2
+Cflags: 
+Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
+Requires: urdf xacro
