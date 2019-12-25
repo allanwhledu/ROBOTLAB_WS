@@ -166,8 +166,8 @@ void HandleRef::get_reflocation(float x, float y)
 	tf::TransformListener tfListener;
 	tf::StampedTransform scanTransform;
 
-	tfListener.waitForTransform("odom", "laser_link", ros::Time(0), ros::Duration(1.0) );
-	tfListener.lookupTransform("odom", "laser_link", ros::Time(0), scanTransform);
+	tfListener.waitForTransform("odom", "base_scan", ros::Time(0), ros::Duration(1.0) );
+	tfListener.lookupTransform("odom", "base_scan", ros::Time(0), scanTransform);
 
 	float r_x = scanTransform.getOrigin().x();
 	float r_y = scanTransform.getOrigin().y();
