@@ -1,8 +1,0 @@
-prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
-
-Name: controller_manager_msgs
-Description: Description of controller_manager_msgs
-Version: 0.15.1
-Cflags: -I/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/include
-Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
-Requires: std_msgs message_runtime

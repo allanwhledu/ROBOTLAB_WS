@@ -1,8 +1,0 @@
-prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
-
-Name: turtlebot3_bringup
-Description: Description of turtlebot3_bringup
-Version: 1.2.2
-Cflags: 
-Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
-Requires: roscpp std_msgs sensor_msgs diagnostic_msgs turtlebot3_msgs

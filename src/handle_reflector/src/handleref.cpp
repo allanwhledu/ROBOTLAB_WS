@@ -302,7 +302,7 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 			test_point.point.x = x;
 			test_point.point.y = y;
 			test_point.point.z = 0;
-			test_point.header.frame_id = "laser_link";
+			test_point.header.frame_id = "base_scan";
 			test_point_pub.publish(test_point);
 		}
 		cout<<"------"<<endl;

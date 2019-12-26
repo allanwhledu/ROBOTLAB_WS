@@ -1,8 +1,0 @@
-prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
-
-Name: hardware_interface
-Description: Description of hardware_interface
-Version: 0.15.1
-Cflags: -I/home/whl/ROBOTLAB_WS/src/ros_control-melodic-devel/hardware_interface/include
-Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
-Requires: roscpp

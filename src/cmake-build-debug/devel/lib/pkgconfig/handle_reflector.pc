@@ -1,8 +1,0 @@
-prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
-
-Name: handle_reflector
-Description: Description of handle_reflector
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
-Requires: 

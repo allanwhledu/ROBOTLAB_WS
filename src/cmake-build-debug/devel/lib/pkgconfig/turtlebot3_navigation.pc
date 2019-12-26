@@ -1,8 +1,0 @@
-prefix=/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel
-
-Name: turtlebot3_navigation
-Description: Description of turtlebot3_navigation
-Version: 1.2.2
-Cflags: 
-Libs: -L/home/whl/ROBOTLAB_WS/src/cmake-build-debug/devel/lib 
-Requires: 
