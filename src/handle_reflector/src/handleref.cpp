@@ -336,6 +336,8 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 	int number_reflectors = vector_d.size();
 	cout<<"number_reflectors:"<<number_reflectors<<endl;
+    if(number_reflectors<4)
+        return;
 
 	cout<<"debug point3!"<<endl;
 	
