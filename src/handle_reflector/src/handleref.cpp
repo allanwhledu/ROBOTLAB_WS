@@ -28,7 +28,6 @@ vector<float> ys;
 //可见反光柱的相关位置与距离信息
 Eigen::Matrix<float, 3, 4> M_ref_sensor;
 Eigen::Matrix<float, 3, 4> M_ref_real;
-//Eigen::Matrix<float, 1, 4> M_dis_sensor;
 vector<float> M_dis_sensor;
 Eigen::Matrix<float, 1, 4> M_dis_real;
 
@@ -163,27 +162,46 @@ bool HandleRef::solveLeastSquaresCircleKasa(const  std::vector<Eigen::Vector2d, 
 // 将输入的一点xy转换成odom坐标上的点，并push到reflector
 void HandleRef::get_reflocation(float x, float y)
 {
-	tf::TransformListener tfListener;
-	tf::StampedTransform scanTransform;
+    geometry_msgs::PointStamped base_point;
+    base_point.header.frame_id = "base_scan";
+    base_point.header.stamp = ros::Time();
+    base_point.point.x = x;
+    base_point.point.y = y;
+    base_point.point.z = 0;
 
-	tfListener.waitForTransform("odom", "base_scan", ros::Time(0), ros::Duration(1.0) );
-	tfListener.lookupTransform("odom", "base_scan", ros::Time(0), scanTransform);
+    geometry_msgs::PointStamped odom_point;
+    try{
+        tf::TransformListener tfListener;
+        tfListener.waitForTransform("odom", "base_scan", ros::Time(0), ros::Duration(1.0) );
+        tfListener.transformPoint("odom", base_point, odom_point);
 
-	float r_x = scanTransform.getOrigin().x();
-	float r_y = scanTransform.getOrigin().y();
-	float r_theta = tf::getYaw(scanTransform.getRotation());
+        ROS_INFO("Transform succeed.");
+    }
+    catch(tf::TransformException& ex){
+        ROS_ERROR("Transform Error.");
+    }
 
-	Eigen::Matrix<float,2,1> c;
-	Eigen::Matrix<float,2,2> b;
-	Eigen::Matrix<float,2,1> a;
+    test_point_pub.publish(odom_point);
 
-	c << x,y;
-	b << cos(r_theta), -sin(r_theta), sin(r_theta), cos(r_theta);
-	a = b*c;
+    reflectors.x.push_back(odom_point.point.x);
+	reflectors.y.push_back(odom_point.point.y);
 
-	cout<<"输出在odom下的reflector："<<a(0,0)+r_x<<" "<<a(1,0)+r_y<<endl;
-	reflectors.x.push_back(a(0,0)+r_x);
-	reflectors.y.push_back(a(1,0)+r_y);
+
+//	float r_x = scanTransform.getOrigin().x();
+//	float r_y = scanTransform.getOrigin().y();
+//	float r_theta = tf::getYaw(scanTransform.getRotation());
+//
+//	Eigen::Matrix<float,2,1> c;
+//	Eigen::Matrix<float,2,2> b;
+//	Eigen::Matrix<float,2,1> a;
+//
+//	c << x,y;
+//	b << cos(r_theta), -sin(r_theta), sin(r_theta), cos(r_theta);
+//	a = b*c;
+//
+//	cout<<"输出在odom下的reflector："<<a(0,0)+r_x<<" "<<a(1,0)+r_y<<endl;
+//	reflectors.x.push_back(a(0,0)+r_x);
+//	reflectors.y.push_back(a(1,0)+r_y);
 }
 
 
@@ -198,7 +216,7 @@ void HandleRef::matching_ref( )
 		M_ref_sensor(0,i)=reflectors.x.at(i);
 		M_ref_sensor(1,i)=reflectors.y.at(i);
 		M_ref_sensor(2,i)=i+1;
-		cout<<"reflectors_sensor:"<<reflectors.x.at(i)<<reflectors.y.at(i)<<i+1<<endl;
+		cout<<"reflectors_sensor: "<<reflectors.x.at(i)<<" "<<reflectors.y.at(i)<<" "<<i+1<<endl;
 	}
 
 
@@ -217,11 +235,12 @@ void HandleRef::matching_ref( )
 
 	}
 
-	cout<<"print mdissensor:"<<endl;
+	cout<<"print mdissensor: "<<endl;
 	for(int i=0;i<M_dis_sensor.size();i++){
 	    cout<<M_dis_sensor.at(i);
 	}
-	cout<<"print mdisreal:"<<M_dis_real<<endl;
+	ROS_INFO_STREAM(" ");
+	cout<<"print mdisreal: "<<M_dis_real<<endl;
 }
 
 
@@ -235,7 +254,6 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//这里以后要修改的，是把柱子的坐标放入
 	xs.push_back(x_1);xs.push_back(x_2);xs.push_back(x_3);xs.push_back(x_4);
 	ys.push_back(y_1);ys.push_back(y_2);ys.push_back(y_3);ys.push_back(y_4);
-
 
 	M_dis_real << 0,0,0,0;
 	cout<<"初始化M_dis_real:"<<M_dis_real<<endl;
@@ -298,15 +316,6 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		cout<<"x:"<<x;
 		cout<<" y:"<<y<<endl;
 
-		if(i==0){
-			test_point.point.x = x;
-			test_point.point.y = y;
-			test_point.point.z = 0;
-			test_point.header.frame_id = "base_scan";
-			test_point_pub.publish(test_point);
-		}
-		cout<<"------"<<endl;
-
 		// cout<<"打印mdis"<<M_dis_sensor<<endl;
 
 	}
@@ -315,95 +324,96 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		get_reflocation(Midpoints.at(i)(0.0),Midpoints.at(i)(1.0));
 	}
 
-	matching_ref();
 
-	cout<<"debug point1!"<<endl;
-	// 一下的部分是对机器人位置的最小二乘拟合，应该修改到先找有多少个维度，然后按照维度生成矩阵进行计算。
-	// 先把距离构成d，然后对应的距离所对应的反光板id放入vector_id
-
-	// 接着这里去除mdisreal中的0项
-	vector<float> vector_d;
-	vector<int> vector_id;
-	cout<<"mdisreal_cols:"<<M_dis_real.cols()<<endl;
-	for(int i=0;i<M_dis_real.cols();i++){
-		if(M_dis_real(0,i)>0){
-			vector_d.push_back(M_dis_real(0,i));
-			vector_id.push_back(i);
-		}
-	}
-
-	cout<<"debug point2!"<<endl;
-
-	int number_reflectors = vector_d.size();
-	cout<<"number_reflectors:"<<number_reflectors<<endl;
-
-	cout<<"debug point3!"<<endl;
-	
-	
-	// 处理动态矩阵的问题
-
-	Eigen::MatrixXd matrix_a(number_reflectors,2);
-	Eigen::MatrixXd matrix_b(number_reflectors,1);
-
-	//Eigen::Matrix<float,4,2> matrix_a;
-	//Eigen::MatrixXd matrix_a(4,2);
-	//Eigen::Matrix<float,4,1> matrix_b;
-	//Eigen::MatrixXd matrix_b(4,1);
-
-
-	//matrix_a << 2*(x_1-x_4), 2*(y_1-y_4), 2*(x_2-x_4), 2*(y_2-y_4), 2*(x_3-x_4), 2*(y_3-y_4);
-
-	cout<<"打印一下vector_d:";
-	for(int i=0;i<number_reflectors;i++){
-		cout<<vector_d.at(i)<<" ";	
-	}	
-	cout<<endl;
-	
-	cout<<"打印一下vector_id:";
-	for(int i=0;i<number_reflectors;i++){
-		cout<<vector_id.at(i)<<" ";
-	}
-	cout<<endl;
-//	vector<int> test;
-//	test.push_back(1);
-//	test.push_back(2);
-//	cout<<"test:"<<test.at(0)<<" "<<test.back()<<endl;
-
-	for(int i=0;i<vector_id.size();i++){
-		matrix_a(i,0)=2*(xs.at(vector_id.at(i))-xs.at(vector_id.back()));
-		matrix_a(i,1)=2*(ys.at(vector_id.at(i))-ys.at(vector_id.back()));
-	}
-
-	cout<<"debug point4!"<<matrix_a<<endl;
-
-	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
-
-	for(int i=0;i<number_reflectors;i++){
-		matrix_b(i,0) = std::pow(xs.at(vector_id.at(i)),2)-std::pow(xs.at(vector_id.back()),2)+std::pow(ys.at(vector_id.at(i)),2)-std::pow(ys.at(vector_id.back()),2)+std::pow(vector_d.at(vector_id.back()),2)-std::pow(vector_d.at(vector_id.at(i)),2);
-	}
-	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
-	cout<<"debug point4.1!"<<matrix_b<<endl;
-	Eigen::MatrixXd matrix_ata;
-	Eigen::MatrixXd location_r;
-
-	cout<<"debug point5!"<<endl;
-
-
-	matrix_ata = matrix_a.transpose()*matrix_a;
-
-	location_r = matrix_ata.inverse()*matrix_a.transpose()*matrix_b;
-
-	cout<<"debug point6!"<<endl;
-
-	std::cout<<"输出位置： "<<location_r.transpose()<<std::endl;
-	std::cout<<"======"<<std::endl;
-
-	robot_location.point.x = location_r(0,0);
-	robot_location.point.y = location_r(1,0);
-	robot_location.point.z = 0;
-	robot_location.header.frame_id = "odom";
-	robot_pub.publish(robot_location);
-	cout<<"debug point7!"<<endl;
+//	matching_ref();
+//
+//	cout<<"debug point1!"<<endl;
+//	// 一下的部分是对机器人位置的最小二乘拟合，应该修改到先找有多少个维度，然后按照维度生成矩阵进行计算。
+//	// 先把距离构成d，然后对应的距离所对应的反光板id放入vector_id
+//
+//	// 接着这里去除mdisreal中的0项
+//	vector<float> vector_d;
+//	vector<int> vector_id;
+//	cout<<"mdisreal_cols:"<<M_dis_real.cols()<<endl;
+//	for(int i=0;i<M_dis_real.cols();i++){
+//		if(M_dis_real(0,i)>0){
+//			vector_d.push_back(M_dis_real(0,i));
+//			vector_id.push_back(i);
+//		}
+//	}
+//
+//	cout<<"debug point2!"<<endl;
+//
+//	int number_reflectors = vector_d.size();
+//	cout<<"number_reflectors:"<<number_reflectors<<endl;
+//
+//	cout<<"debug point3!"<<endl;
+//
+//
+//	// 处理动态矩阵的问题
+//
+//	Eigen::MatrixXd matrix_a(number_reflectors,2);
+//	Eigen::MatrixXd matrix_b(number_reflectors,1);
+//
+//	//Eigen::Matrix<float,4,2> matrix_a;
+//	//Eigen::MatrixXd matrix_a(4,2);
+//	//Eigen::Matrix<float,4,1> matrix_b;
+//	//Eigen::MatrixXd matrix_b(4,1);
+//
+//
+//	//matrix_a << 2*(x_1-x_4), 2*(y_1-y_4), 2*(x_2-x_4), 2*(y_2-y_4), 2*(x_3-x_4), 2*(y_3-y_4);
+//
+//	cout<<"打印一下vector_d:";
+//	for(int i=0;i<number_reflectors;i++){
+//		cout<<vector_d.at(i)<<" ";
+//	}
+//	cout<<endl;
+//
+//	cout<<"打印一下vector_id:";
+//	for(int i=0;i<number_reflectors;i++){
+//		cout<<vector_id.at(i)<<" ";
+//	}
+//	cout<<endl;
+////	vector<int> test;
+////	test.push_back(1);
+////	test.push_back(2);
+////	cout<<"test:"<<test.at(0)<<" "<<test.back()<<endl;
+//
+//	for(int i=0;i<vector_id.size();i++){
+//		matrix_a(i,0)=2*(xs.at(vector_id.at(i))-xs.at(vector_id.back()));
+//		matrix_a(i,1)=2*(ys.at(vector_id.at(i))-ys.at(vector_id.back()));
+//	}
+//
+//	cout<<"debug point4!"<<matrix_a<<endl;
+//
+//	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
+//
+//	for(int i=0;i<number_reflectors;i++){
+//		matrix_b(i,0) = std::pow(xs.at(vector_id.at(i)),2)-std::pow(xs.at(vector_id.back()),2)+std::pow(ys.at(vector_id.at(i)),2)-std::pow(ys.at(vector_id.back()),2)+std::pow(vector_d.at(vector_id.back()),2)-std::pow(vector_d.at(vector_id.at(i)),2);
+//	}
+//	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
+//	cout<<"debug point4.1!"<<matrix_b<<endl;
+//	Eigen::MatrixXd matrix_ata;
+//	Eigen::MatrixXd location_r;
+//
+//	cout<<"debug point5!"<<endl;
+//
+//
+//	matrix_ata = matrix_a.transpose()*matrix_a;
+//
+//	location_r = matrix_ata.inverse()*matrix_a.transpose()*matrix_b;
+//
+//	cout<<"debug point6!"<<endl;
+//
+//	std::cout<<"输出位置： "<<location_r.transpose()<<std::endl;
+//	std::cout<<"======"<<std::endl;
+//
+//	robot_location.point.x = location_r(0,0);
+//	robot_location.point.y = location_r(1,0);
+//	robot_location.point.z = 0;
+//	robot_location.header.frame_id = "odom";
+//	robot_pub.publish(robot_location);
+//	cout<<"debug point7!"<<endl;
 
 }
 
