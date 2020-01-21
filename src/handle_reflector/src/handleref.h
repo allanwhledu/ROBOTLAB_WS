@@ -44,5 +44,6 @@ public:
 
   //测试用pub
   ros::Publisher test_point_pub;
+  ros::Publisher test_point_pub2;
 
 };

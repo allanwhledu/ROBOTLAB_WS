@@ -10,10 +10,10 @@ float ANGLE_INCREMENT;
 
 //这里是所有的全局变量
 //1. 储存了全局地图的相关信息
-float x_1 = 5; float y_1 = 5;
-float x_2 = 5; float y_2 = -5;
-float x_3 = -5; float y_3 = 5;
-float x_4 = -5; float y_4 =-5;
+float x_1 = -4.5; float y_1 = -1.2;
+float x_2 = 3.2; float y_2 = -8.4;
+float x_3 = 2.4; float y_3 = -0.5;
+float x_4 = 1.7; float y_4 =6.5;
 
 //2. 用来储存发布信息
 geometry_msgs::PointStamped robot_location;
@@ -40,9 +40,10 @@ std::vector<float> valid_dis;
 
 HandleRef::HandleRef()
 {
-	scan_sub = n.subscribe<sensor_msgs::LaserScan>("/scan",1,&HandleRef::scan_Callback,this);
+	scan_sub = n.subscribe<sensor_msgs::LaserScan>("/scan_filtered",1,&HandleRef::scan_Callback,this);
 	robot_pub = n.advertise<geometry_msgs::PointStamped>("robot_location", 1);
 	test_point_pub = n.advertise<geometry_msgs::PointStamped>("test_point", 1);
+    test_point_pub2 = n.advertise<geometry_msgs::PointStamped>("test_point2", 1);
 }
 
 struct point
@@ -65,7 +66,7 @@ float HandleRef::getDis(float x1, float y1, float x2, float y2)
 }
 
 // 从获取的激光数据中，搜索出圆弧片段的起点与终点
-bool HandleRef::findcircles(std::vector<float> num, int count, vector<Eigen::Matrix2d>& count_start_end)
+bool HandleRef::findcircles(std::vector<float> msg, int count, vector<Eigen::Matrix2d>& count_start_end)
 {
 	Eigen::Matrix2d start_end;
 
@@ -74,16 +75,16 @@ bool HandleRef::findcircles(std::vector<float> num, int count, vector<Eigen::Mat
 	cout<<"找到了以下的圆弧："<<endl;
 
 	for(int i=1;i<count;i++){
-		if(num.at(i)<100 && sign == 0 && num.at(i)>0.3){
+		if(!isnan(msg.at(i)) && sign == 0){
 			start_end(0,0) = i;
-			cout<<"start="<<i/2<<endl;
+			cout<<"start="<<i<<endl;
 			sign = 1;
 		}
 
-		if(num.at(i)>100 && sign == 1 && num.at(i)>0.3){
+		if(isnan(msg.at(i)) && sign == 1){
 			start_end(1,0) = i;
 			count_start_end.push_back(start_end);
-			cout<<"end="<<i/2<<endl;
+			cout<<"end="<<i<<endl;
 			sign = 0;
 		}
 	}
@@ -92,15 +93,7 @@ bool HandleRef::findcircles(std::vector<float> num, int count, vector<Eigen::Mat
 	return 0;
 }
 
-
 // 依照输入的离散点，拟合圆并给出圆心坐标
-/**
- * Fit a circle in a set of points. You need a minimum of 1 point to fit a circle.
- *
- * @param points Is the set of points. //points是点的集合
- * @param midpoint Is the fitted midpoint of the circle. //minpoint是拟合出来的圆的中点
- * @param Returns true, if no error occur. An error occurs, if the points vector is empty. 返回真值，如果没有错误发生；如果points是空的，那么也会发生一个错误。
- */
 bool HandleRef::solveLeastSquaresCircleKasa(const  std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > &points, Eigen::Vector2d &midpoint, double &radius)
 {
 	int length = points.size();
@@ -166,8 +159,8 @@ void HandleRef::get_reflocation(float x, float y)
 	tf::TransformListener tfListener;
 	tf::StampedTransform scanTransform;
 
-	tfListener.waitForTransform("odom", "laser_link", ros::Time(0), ros::Duration(1.0) );
-	tfListener.lookupTransform("odom", "laser_link", ros::Time(0), scanTransform);
+	tfListener.waitForTransform("odom", "/scan", ros::Time(0), ros::Duration(1.0) );
+	tfListener.lookupTransform("odom", "/scan", ros::Time(0), scanTransform);
 
 	float r_x = scanTransform.getOrigin().x();
 	float r_y = scanTransform.getOrigin().y();
@@ -185,7 +178,6 @@ void HandleRef::get_reflocation(float x, float y)
 	reflectors.x.push_back(a(0,0)+r_x);
 	reflectors.y.push_back(a(1,0)+r_y);
 }
-
 
 void HandleRef::matching_ref( )
 {
@@ -205,13 +197,19 @@ void HandleRef::matching_ref( )
 	std::cout<<"算出来的反光柱与真实反光柱位置的偏移："<<std::endl;
 	for(int i=0;i<reflectors.x.size();i++)
 	{
+	    ROS_WARN_STREAM("number of visual reflactor: "<<i);
 		for(int j=0;j<4;j++)
-		{    
+		{
+            ROS_WARN_STREAM("number of phisical reflactor: "<<j);
 			Dis = HandleRef::getDis(M_ref_sensor(0,i),M_ref_sensor(1,i),M_ref_real(0,j),M_ref_real(1,j));
-
+            ROS_WARN_STREAM("debug 1");
 			std::cout<<Dis<<" ";
 			if(Dis<2)
-				M_dis_real(0,j) = M_dis_sensor.at(i);
+            {
+                ROS_WARN_STREAM("debug 2");
+                M_dis_real(0,j) = M_dis_sensor.at(i);
+                ROS_WARN_STREAM("debug 3");
+            }
 		}
 		std::cout<<std::endl;
 
@@ -240,79 +238,154 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	M_dis_real << 0,0,0,0;
 	cout<<"初始化M_dis_real:"<<M_dis_real<<endl;
 
-	ANGLE_MIN = msg->angle_min;
-	ANGLE_INCREMENT = msg->angle_increment;
-	int count = msg->ranges.size();
+    ANGLE_MIN = msg->angle_min;
+    ANGLE_INCREMENT = msg->angle_increment;
+	int ranges = msg->ranges.size();
 	std::vector<float> ranges_vec = msg->ranges;
-	vector<Eigen::Matrix2d> count_start_end;
+	vector<Eigen::Matrix2d> msg_start_end;
+	HandleRef::findcircles(ranges_vec, ranges, msg_start_end);
 
-	HandleRef::findcircles(ranges_vec, count, count_start_end);
+//    vector<Eigen::Matrix2d> msg_midpoints;
+//    Eigen::Matrix2d msg_midpoint;
+//    msg_midpoint(0, 0) =
+//    msg_midpoints.push_back();
+
+    vector<Eigen::Vector2d> Points;
+
+    for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++) {
+//            ROS_WARN_STREAM((*it)(0,0));
+//            ROS_WARN_STREAM((*it)(1,0));
+        int count = ((*it)(0,0)+(*it)(1,0))/2;
+        float angle = count * ANGLE_INCREMENT;
+        float point_x = -ranges_vec.at(count) * cos(angle);
+        float point_y = -ranges_vec.at(count) * sin(angle);
+
+        Eigen::Vector2d point;
+        point << point_x, point_y;
+
+        ROS_WARN_STREAM("min point: "<<point_x<<" "<<point_y);
+
+        // 装入mdis，及传感器扫描到的距离。
+        M_dis_sensor.push_back(sqrt(point_x*point_x+point_y*point_y));
+
+        if(it == msg_start_end.begin())
+        {
+            test_point.point.x = point_x;
+            test_point.point.y = point_y;
+            test_point.point.z = 0;
+            test_point.header.frame_id = "/scan";
+            test_point_pub.publish(test_point);
+        }
+
+        if(it == msg_start_end.begin()+1)
+        {
+            test_point.point.x = point_x;
+            test_point.point.y = point_y;
+            test_point.point.z = 0;
+            test_point.header.frame_id = "/scan";
+            test_point_pub2.publish(test_point);
+        }
+
+        Points.push_back(point);
+
+    }
+//        int start_circle = msg_start_end.at(i)(0, 0);
+//        int end_circle = msg_start_end.at(i)(1, 0);
+//        for (int j = start_circle + 1; j < end_circle; j++) {
+//
+//            float angle = j * ANGLE_INCREMENT;
+//            float point_x = -ranges_vec.at(j) * cos(angle);
+//            float point_y = -ranges_vec.at(j) * sin(angle);
+//
+//            Eigen::Vector2d point;
+//            point << point_x, point_y;
+//
+//
+//            Points.push_back(point);
+//        }
+
+//	ROS_WARN_STREAM("count start end: ");
+//	for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++)
+//    {
+//        ROS_WARN_STREAM((*it)(0,0));
+//        ROS_WARN_STREAM((*it)(1,0));
+//    }
+
 
 	// 以上的代码没有问题了
-	// 以下的代码开始搜索激光数据中的圆弧，然后输出一个Midpoints向量和m_dis_real的eigen向量（1xn）
-
-	vector<Eigen::Vector2d> Midpoints;
 
 
-	for(int i=0;i<count_start_end.size();i++){
-		vector<Eigen::Vector2d> Points;
+//	// 以下的代码开始搜索激光数据中的圆弧，然后输出一个Midpoints向量和m_dis_real的eigen向量（1xn）
+//	vector<Eigen::Vector2d> Midpoints;
+//	for(int i=0;i<msg_start_end.size();i++){
+//		vector<Eigen::Vector2d> Points;
+//
+//		int start_circle = msg_start_end.at(i)(0,0);
+//		int end_circle = msg_start_end.at(i)(1,0);
+//		for(int j=start_circle+1;j<end_circle;j++){
+//
+//			float angle = j*ANGLE_INCREMENT;
+//			float point_x = -ranges_vec.at(j)*cos(angle);
+//			float point_y = -ranges_vec.at(j)*sin(angle);
+//
+//			Eigen::Vector2d point;
+//			point << point_x, point_y;
+//
+//
+//			Points.push_back(point);
+//		}
+//
+//		vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > samplePoints;
+//		for(int i=0; i<Points.size();i++){
+//			samplePoints.push_back(Points.at(i));
+//		}
+//
+//		Eigen::Vector2d midpoint;
+//		double radius;
+//		bool ok;
+//
+//		ok = solveLeastSquaresCircleKasa(samplePoints, midpoint, radius);
+//
+//		Midpoints.push_back(midpoint);
+//
+//		// 以下代码为了调试
+//
+//    for(int i=0;i<msg_start_end.size();i++){
+//		cout<<"输出本轮圆弧计算得到的midpoint："<<endl;
+//		float x = midpoint(0,0);
+//		float y = midpoint(1,0);
+//
+//		// 装入mdis，及传感器扫描到的距离。
+//		M_dis_sensor.push_back(sqrt(x*x+y*y));
+//
+//
+//		cout<<"x:"<<x;
+//		cout<<" y:"<<y<<endl;
+//
+//		if(i==0){
+//			test_point.point.x = x;
+//			test_point.point.y = y;
+//			test_point.point.z = 0;
+//			test_point.header.frame_id = "/scan";
+//			test_point_pub.publish(test_point);
+//		}
+//		cout<<"------"<<endl;
+//
+//        if(i==1){
+//            test_point.point.x = x;
+//            test_point.point.y = y;
+//            test_point.point.z = 0;
+//            test_point.header.frame_id = "/scan";
+//            test_point_pub2.publish(test_point);
+//        }
+//        cout<<"------"<<endl;
+//
+//		// cout<<"打印mdis"<<M_dis_sensor<<endl;
+//
+//	}
 
-		int start_circle = count_start_end.at(i)(0,0);
-		int end_circle = count_start_end.at(i)(1,0);
-		for(int j=start_circle+1;j<end_circle;j++){
-
-			float angle = j*ANGLE_INCREMENT;
-			float point_x = -ranges_vec.at(j)*cos(angle);
-			float point_y = -ranges_vec.at(j)*sin(angle);
-
-			Eigen::Vector2d point;
-			point << point_x, point_y;
-
-
-			Points.push_back(point);
-		}
-
-		vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > samplePoints;
-		for(int i=0; i<Points.size();i++){
-			samplePoints.push_back(Points.at(i));
-		}
-
-		Eigen::Vector2d midpoint;
-		double radius;
-		bool ok;
-
-		ok = solveLeastSquaresCircleKasa(samplePoints, midpoint, radius);
-
-		Midpoints.push_back(midpoint);
-
-		// 以下代码为了调试
-
-		cout<<"输出本轮圆弧计算得到的midpoint："<<endl;
-		float x = midpoint(0,0);
-		float y = midpoint(1,0);
-
-		// 装入mdis，及传感器扫描到的距离。
-		M_dis_sensor.push_back(sqrt(x*x+y*y));
-
-
-		cout<<"x:"<<x;
-		cout<<" y:"<<y<<endl;
-
-		if(i==0){
-			test_point.point.x = x;
-			test_point.point.y = y;
-			test_point.point.z = 0;
-			test_point.header.frame_id = "laser_link";
-			test_point_pub.publish(test_point);
-		}
-		cout<<"------"<<endl;
-
-		// cout<<"打印mdis"<<M_dis_sensor<<endl;
-
-	}
-
-	for(int i=0;i<Midpoints.size();i++){
-		get_reflocation(Midpoints.at(i)(0.0),Midpoints.at(i)(1.0));
+	for(int i=0;i<Points.size();i++){
+		get_reflocation(Points.at(i)(0.0),Points.at(i)(1.0));
 	}
 
 	matching_ref();
@@ -340,8 +413,8 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
         return;
 
 	cout<<"debug point3!"<<endl;
-	
-	
+
+
 	// 处理动态矩阵的问题
 
 	Eigen::MatrixXd matrix_a(number_reflectors,2);
@@ -357,10 +430,10 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 	cout<<"打印一下vector_d:";
 	for(int i=0;i<number_reflectors;i++){
-		cout<<vector_d.at(i)<<" ";	
-	}	
+		cout<<vector_d.at(i)<<" ";
+	}
 	cout<<endl;
-	
+
 	cout<<"打印一下vector_id:";
 	for(int i=0;i<number_reflectors;i++){
 		cout<<vector_id.at(i)<<" ";
