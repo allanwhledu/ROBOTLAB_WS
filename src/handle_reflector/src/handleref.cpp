@@ -8,12 +8,15 @@ float RADIUS = 0.5;
 float ANGLE_MIN;
 float ANGLE_INCREMENT;
 
+
 //这里是所有的全局变量
 //1. 储存了全局地图的相关信息
-float x_1 = -4.5; float y_1 = -1.2;
-float x_2 = 3.2; float y_2 = -8.4;
-float x_3 = 2.4; float y_3 = -0.5;
-float x_4 = 1.7; float y_4 =6.5;
+int reflactor_number = 4;
+
+float x_1 = 0; float y_1 = -2.5;
+float x_2 = 5; float y_2 = -7;
+float x_3 = 5; float y_3 = 2.5;
+float x_4 = -5.7; float y_4 =3.15;
 
 //2. 用来储存发布信息
 geometry_msgs::PointStamped robot_location;
@@ -197,34 +200,31 @@ void HandleRef::matching_ref( )
 	std::cout<<"算出来的反光柱与真实反光柱位置的偏移："<<std::endl;
 	for(int i=0;i<reflectors.x.size();i++)
 	{
-	    ROS_WARN_STREAM("number of visual reflactor: "<<i);
 		for(int j=0;j<4;j++)
 		{
-            ROS_WARN_STREAM("number of phisical reflactor: "<<j);
 			Dis = HandleRef::getDis(M_ref_sensor(0,i),M_ref_sensor(1,i),M_ref_real(0,j),M_ref_real(1,j));
-            ROS_WARN_STREAM("debug 1");
 			std::cout<<Dis<<" ";
-			if(Dis<2)
+			if(Dis<3)
             {
-                ROS_WARN_STREAM("debug 2");
                 M_dis_real(0,j) = M_dis_sensor.at(i);
-                ROS_WARN_STREAM("debug 3");
             }
 		}
 		std::cout<<std::endl;
-
+		ROS_WARN_STREAM("debug 1");
 	}
+	ROS_WARN_STREAM("debug 2");
 
-	cout<<"print mdissensor:"<<endl;
-	for(int i=0;i<M_dis_sensor.size();i++){
-	    cout<<M_dis_sensor.at(i);
-	}
-	cout<<"print mdisreal:"<<M_dis_real<<endl;
+//	cout<<"print mdissensor: "<<endl;
+//	for(int i=0;i<M_dis_sensor.size();i++){
+//	    cout<<M_dis_sensor.at(i);
+//	}
+//	cout<<"print mdisreal: "<<M_dis_real<<endl;
 }
 
 
 void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
+    ROS_WARN_STREAM("CALL BACK");
     //将一些全局变量清空，以便循环
 	reflectors.x.clear(); reflectors.y.clear(); reflectors.ID.clear(); //清空reflectors
 	xs.clear(); ys.clear();
@@ -245,11 +245,6 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	vector<Eigen::Matrix2d> msg_start_end;
 	HandleRef::findcircles(ranges_vec, ranges, msg_start_end);
 
-//    vector<Eigen::Matrix2d> msg_midpoints;
-//    Eigen::Matrix2d msg_midpoint;
-//    msg_midpoint(0, 0) =
-//    msg_midpoints.push_back();
-
     vector<Eigen::Vector2d> Points;
 
     for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++) {
@@ -263,7 +258,7 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
         Eigen::Vector2d point;
         point << point_x, point_y;
 
-        ROS_WARN_STREAM("min point: "<<point_x<<" "<<point_y);
+        ROS_WARN_STREAM("mid point: "<<point_x<<" "<<point_y);
 
         // 装入mdis，及传感器扫描到的距离。
         M_dis_sensor.push_back(sqrt(point_x*point_x+point_y*point_y));
@@ -277,7 +272,7 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
             test_point_pub.publish(test_point);
         }
 
-        if(it == msg_start_end.begin()+1)
+        if(it == msg_start_end.begin()+2)
         {
             test_point.point.x = point_x;
             test_point.point.y = point_y;
@@ -389,8 +384,8 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	}
 
 	matching_ref();
+	cout<<"matching_ref complete!"<<endl;
 
-	cout<<"debug point1!"<<endl;
 	// 一下的部分是对机器人位置的最小二乘拟合，应该修改到先找有多少个维度，然后按照维度生成矩阵进行计算。
 	// 先把距离构成d，然后对应的距离所对应的反光板id放入vector_id
 
@@ -405,14 +400,11 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		}
 	}
 
-	cout<<"debug point2!"<<endl;
 
 	int number_reflectors = vector_d.size();
 	cout<<"number_reflectors:"<<number_reflectors<<endl;
-    if(number_reflectors<4)
+    if(number_reflectors<number_reflectors)
         return;
-
-	cout<<"debug point3!"<<endl;
 
 
 	// 处理动态矩阵的问题
@@ -428,47 +420,33 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 	//matrix_a << 2*(x_1-x_4), 2*(y_1-y_4), 2*(x_2-x_4), 2*(y_2-y_4), 2*(x_3-x_4), 2*(y_3-y_4);
 
-	cout<<"打印一下vector_d:";
-	for(int i=0;i<number_reflectors;i++){
-		cout<<vector_d.at(i)<<" ";
-	}
-	cout<<endl;
-
-	cout<<"打印一下vector_id:";
-	for(int i=0;i<number_reflectors;i++){
-		cout<<vector_id.at(i)<<" ";
-	}
-	cout<<endl;
-//	vector<int> test;
-//	test.push_back(1);
-//	test.push_back(2);
-//	cout<<"test:"<<test.at(0)<<" "<<test.back()<<endl;
+//	cout<<"打印一下vector_d:";
+//	for(int i=0;i<number_reflectors;i++){
+//		cout<<vector_d.at(i)<<" ";
+//	}
+//	cout<<endl;
+//
+//	cout<<"打印一下vector_id:";
+//	for(int i=0;i<number_reflectors;i++){
+//		cout<<vector_id.at(i)<<" ";
+//	}
+//	cout<<endl;
 
 	for(int i=0;i<vector_id.size();i++){
 		matrix_a(i,0)=2*(xs.at(vector_id.at(i))-xs.at(vector_id.back()));
 		matrix_a(i,1)=2*(ys.at(vector_id.at(i))-ys.at(vector_id.back()));
 	}
 
-	cout<<"debug point4!"<<matrix_a<<endl;
-
-	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
-
 	for(int i=0;i<number_reflectors;i++){
 		matrix_b(i,0) = std::pow(xs.at(vector_id.at(i)),2)-std::pow(xs.at(vector_id.back()),2)+std::pow(ys.at(vector_id.at(i)),2)-std::pow(ys.at(vector_id.back()),2)+std::pow(vector_d.at(vector_id.back()),2)-std::pow(vector_d.at(vector_id.at(i)),2);
 	}
-	//matrix_b << std::pow(x_1,2)-std::pow(x_4,2)+std::pow(y_1,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d1,2), std::pow(x_2,2)-std::pow(x_4,2)+std::pow(y_2,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d2,2), std::pow(x_3,2)-std::pow(x_4,2)+std::pow(y_3,2)-std::pow(y_4,2)+std::pow(d4,2)-std::pow(d3,2);
-	cout<<"debug point4.1!"<<matrix_b<<endl;
+
 	Eigen::MatrixXd matrix_ata;
 	Eigen::MatrixXd location_r;
-
-	cout<<"debug point5!"<<endl;
-
 
 	matrix_ata = matrix_a.transpose()*matrix_a;
 
 	location_r = matrix_ata.inverse()*matrix_a.transpose()*matrix_b;
-
-	cout<<"debug point6!"<<endl;
 
 	std::cout<<"输出位置： "<<location_r.transpose()<<std::endl;
 	std::cout<<"======"<<std::endl;
@@ -478,7 +456,6 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	robot_location.point.z = 0;
 	robot_location.header.frame_id = "odom";
 	robot_pub.publish(robot_location);
-	cout<<"debug point7!"<<endl;
 
 }
 
@@ -486,9 +463,10 @@ void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "handleref");
+
 	HandleRef handle_laser; //实体化一个在头文件中的class，在class里面就包含了回调函数的声明
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 	while (ros::ok())
 	{
 		ros::spinOnce();
