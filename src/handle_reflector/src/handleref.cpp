@@ -1,4 +1,5 @@
 #include "handleref.h"
+#include <cstdio>
 
 using namespace std;
 
@@ -11,22 +12,22 @@ float ANGLE_INCREMENT;
 
 //这里是所有的全局变量
 //1. 储存了全局地图的相关信息
-int reflactor_number = 4;
+int reflactor_number = 5;
 
-float x_1 = 0; float y_1 = -2.5;
-float x_2 = 5; float y_2 = -7;
-float x_3 = 5; float y_3 = 2.5;
-float x_4 = -5.7; float y_4 =3.15;
+float x_1 = -2; float y_1 = -2.2;
+float x_2 = 2.7; float y_2 = -7.5;
+float x_3 = 3.3; float y_3 = 2.4;
+float x_4 = -1.9; float y_4 = 8.4;
+float x_5 = -7.2; float y_5 = 3.8;
+
+//用来储存测得圆心
+vector<Eigen::Vector2d> Points;
 
 //2. 用来储存发布信息
 geometry_msgs::PointStamped robot_location;
 geometry_msgs::PointStamped test_point;
 
 //3. 用来申明将会在各个函数中交换信息的变量
-
-//地图中所有反光柱的位置序列 
-vector<float> xs;
-vector<float> ys;
 
 //可见反光柱的相关位置与距离信息
 Eigen::Matrix<float, 3, 4> M_ref_sensor;
@@ -46,7 +47,7 @@ HandleRef::HandleRef()
 	scan_sub = n.subscribe<sensor_msgs::LaserScan>("/scan_filtered",1,&HandleRef::scan_Callback,this);
 	robot_pub = n.advertise<geometry_msgs::PointStamped>("robot_location", 1);
 	test_point_pub = n.advertise<geometry_msgs::PointStamped>("test_point", 1);
-    test_point_pub2 = n.advertise<geometry_msgs::PointStamped>("test_point2", 1);
+	test_point_pub2 = n.advertise<geometry_msgs::PointStamped>("test_point2", 1);
 }
 
 struct point
@@ -96,365 +97,140 @@ bool HandleRef::findcircles(std::vector<float> msg, int count, vector<Eigen::Mat
 	return 0;
 }
 
-// 依照输入的离散点，拟合圆并给出圆心坐标
-bool HandleRef::solveLeastSquaresCircleKasa(const  std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > &points, Eigen::Vector2d &midpoint, double &radius)
-{
-	int length = points.size();
-	double x1;
-	double x2;
-	double x3;
-	Eigen::MatrixXd AFill(3, length);
-	Eigen::MatrixXd a(length, 3);
-	Eigen::VectorXd AFirst(length);
-	Eigen::VectorXd ASec(length);
-	Eigen::VectorXd AFirstSquared(length);
-	Eigen::VectorXd ASecSquared(length);
-	Eigen::VectorXd ASquaredRes(length);
-	Eigen::VectorXd b(length);
-	Eigen::VectorXd c(3);
-	bool ok = true;
-
-	if (length > 1)
-	{
-		for (int i = 0; i < length; i++)
-		{
-			AFill(0, i) = points[i](0);
-			AFill(1, i) = points[i](1);
-			AFill(2, i) = 1;
-		}
-
-		a = AFill.transpose();
-
-		for (int i = 0; i < length; i++)
-		{
-			AFirst(i) = a(i, 0);
-			ASec(i) = a(i, 1);
-		}
-
-		for (int i = 0; i < length; i++)
-		{
-			AFirstSquared(i) = AFirst(i) * AFirst(i);
-			ASecSquared(i) = ASec(i) * ASec(i);
-		}
-
-		b = AFirstSquared + ASecSquared;
-
-		c = a.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
-
-		x1 = c(0);
-		midpoint(0) = x1 * 0.5;
-		x2 = c(1);
-		midpoint(1) = x2 * 0.5;
-		x3 = c(2);
-		radius = sqrt((x1 * x1 + x2 * x2) / 4 + x3);
-	}
-	else
-	{
-		ok = false;
-	}
-
-	return ok;
-}
-
-// 将输入的一点xy转换成odom坐标上的点，并push到reflector
-void HandleRef::get_reflocation(float x, float y)
-{
-	tf::TransformListener tfListener;
-	tf::StampedTransform scanTransform;
-
-	tfListener.waitForTransform("odom", "/scan", ros::Time(0), ros::Duration(1.0) );
-	tfListener.lookupTransform("odom", "/scan", ros::Time(0), scanTransform);
-
-	float r_x = scanTransform.getOrigin().x();
-	float r_y = scanTransform.getOrigin().y();
-	float r_theta = tf::getYaw(scanTransform.getRotation());
-
-	Eigen::Matrix<float,2,1> c;
-	Eigen::Matrix<float,2,2> b;
-	Eigen::Matrix<float,2,1> a;
-
-	c << x,y;
-	b << cos(r_theta), -sin(r_theta), sin(r_theta), cos(r_theta);
-	a = b*c;
-
-	cout<<"输出在odom下的reflector："<<a(0,0)+r_x<<" "<<a(1,0)+r_y<<endl;
-	reflectors.x.push_back(a(0,0)+r_x);
-	reflectors.y.push_back(a(1,0)+r_y);
-}
-
-void HandleRef::matching_ref( )
-{
-	float Dis;
-	// 这里这个应该是也要修改的，需要有多少柱子装入多少
-	M_ref_real << x_1, x_2, x_3, x_4, y_1, y_2, y_3, y_4, 1, 2, 3, 4;
-
-	cout<<"size of reflectors_sensor:"<<reflectors.x.size()<<endl;
-	for(int i=0; i<4; i++){
-		M_ref_sensor(0,i)=reflectors.x.at(i);
-		M_ref_sensor(1,i)=reflectors.y.at(i);
-		M_ref_sensor(2,i)=i+1;
-		cout<<"reflectors_sensor:"<<reflectors.x.at(i)<<reflectors.y.at(i)<<i+1<<endl;
-	}
-
-
-	std::cout<<"算出来的反光柱与真实反光柱位置的偏移："<<std::endl;
-	for(int i=0;i<reflectors.x.size();i++)
-	{
-		for(int j=0;j<4;j++)
-		{
-			Dis = HandleRef::getDis(M_ref_sensor(0,i),M_ref_sensor(1,i),M_ref_real(0,j),M_ref_real(1,j));
-			std::cout<<Dis<<" ";
-			if(Dis<3)
-            {
-                M_dis_real(0,j) = M_dis_sensor.at(i);
-            }
-		}
-		std::cout<<std::endl;
-		ROS_WARN_STREAM("debug 1");
-	}
-	ROS_WARN_STREAM("debug 2");
-
-//	cout<<"print mdissensor: "<<endl;
-//	for(int i=0;i<M_dis_sensor.size();i++){
-//	    cout<<M_dis_sensor.at(i);
-//	}
-//	cout<<"print mdisreal: "<<M_dis_real<<endl;
-}
-
 
 void HandleRef::scan_Callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    ROS_WARN_STREAM("CALL BACK");
-    //将一些全局变量清空，以便循环
-	reflectors.x.clear(); reflectors.y.clear(); reflectors.ID.clear(); //清空reflectors
-	xs.clear(); ys.clear();
-	M_dis_sensor.clear();
+	ROS_WARN_STREAM("CALL BACK");
 
-	//这里以后要修改的，是把柱子的坐标放入
-	xs.push_back(x_1);xs.push_back(x_2);xs.push_back(x_3);xs.push_back(x_4);
-	ys.push_back(y_1);ys.push_back(y_2);ys.push_back(y_3);ys.push_back(y_4);
-
-
+	Points.clear();
+	
 	M_dis_real << 0,0,0,0;
 	cout<<"初始化M_dis_real:"<<M_dis_real<<endl;
 
-    ANGLE_MIN = msg->angle_min;
-    ANGLE_INCREMENT = msg->angle_increment;
+	ANGLE_MIN = msg->angle_min;
+	ANGLE_INCREMENT = msg->angle_increment;
 	int ranges = msg->ranges.size();
 	std::vector<float> ranges_vec = msg->ranges;
 	vector<Eigen::Matrix2d> msg_start_end;
 	HandleRef::findcircles(ranges_vec, ranges, msg_start_end);
 
-    vector<Eigen::Vector2d> Points;
 
-    for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++) {
-//            ROS_WARN_STREAM((*it)(0,0));
-//            ROS_WARN_STREAM((*it)(1,0));
-        int count = ((*it)(0,0)+(*it)(1,0))/2;
-        float angle = count * ANGLE_INCREMENT;
-        float point_x = -ranges_vec.at(count) * cos(angle);
-        float point_y = -ranges_vec.at(count) * sin(angle);
+	for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++) {
+		// count就直接等于圆弧中间的那个位置
+		int count = ((*it)(0,0)+(*it)(1,0))/2;
+		float angle = count * ANGLE_INCREMENT;
+		float point_x = -ranges_vec.at(count) * cos(angle);
+		float point_y = -ranges_vec.at(count) * sin(angle);
 
-        Eigen::Vector2d point;
-        point << point_x, point_y;
+		Eigen::Vector2d point;
+		point << point_x, point_y;
 
-        ROS_WARN_STREAM("mid point: "<<point_x<<" "<<point_y);
+		ROS_WARN_STREAM("mid point: "<<point_x<<" "<<point_y);
 
-        // 装入mdis，及传感器扫描到的距离。
-        M_dis_sensor.push_back(sqrt(point_x*point_x+point_y*point_y));
+		/*
+		// 装入mdis，及传感器扫描到的距离。
+		M_dis_sensor.push_back(sqrt(point_x*point_x+point_y*point_y));
 
-        if(it == msg_start_end.begin())
-        {
-            test_point.point.x = point_x;
-            test_point.point.y = point_y;
-            test_point.point.z = 0;
-            test_point.header.frame_id = "/scan";
-            test_point_pub.publish(test_point);
-        }
-
-        if(it == msg_start_end.begin()+2)
-        {
-            test_point.point.x = point_x;
-            test_point.point.y = point_y;
-            test_point.point.z = 0;
-            test_point.header.frame_id = "/scan";
-            test_point_pub2.publish(test_point);
-        }
-
-        Points.push_back(point);
-
-    }
-//        int start_circle = msg_start_end.at(i)(0, 0);
-//        int end_circle = msg_start_end.at(i)(1, 0);
-//        for (int j = start_circle + 1; j < end_circle; j++) {
-//
-//            float angle = j * ANGLE_INCREMENT;
-//            float point_x = -ranges_vec.at(j) * cos(angle);
-//            float point_y = -ranges_vec.at(j) * sin(angle);
-//
-//            Eigen::Vector2d point;
-//            point << point_x, point_y;
-//
-//
-//            Points.push_back(point);
-//        }
-
-//	ROS_WARN_STREAM("count start end: ");
-//	for(auto it = msg_start_end.begin(); it != msg_start_end.end(); it++)
-//    {
-//        ROS_WARN_STREAM((*it)(0,0));
-//        ROS_WARN_STREAM((*it)(1,0));
-//    }
-
-
-	// 以上的代码没有问题了
-
-
-//	// 以下的代码开始搜索激光数据中的圆弧，然后输出一个Midpoints向量和m_dis_real的eigen向量（1xn）
-//	vector<Eigen::Vector2d> Midpoints;
-//	for(int i=0;i<msg_start_end.size();i++){
-//		vector<Eigen::Vector2d> Points;
-//
-//		int start_circle = msg_start_end.at(i)(0,0);
-//		int end_circle = msg_start_end.at(i)(1,0);
-//		for(int j=start_circle+1;j<end_circle;j++){
-//
-//			float angle = j*ANGLE_INCREMENT;
-//			float point_x = -ranges_vec.at(j)*cos(angle);
-//			float point_y = -ranges_vec.at(j)*sin(angle);
-//
-//			Eigen::Vector2d point;
-//			point << point_x, point_y;
-//
-//
-//			Points.push_back(point);
-//		}
-//
-//		vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > samplePoints;
-//		for(int i=0; i<Points.size();i++){
-//			samplePoints.push_back(Points.at(i));
-//		}
-//
-//		Eigen::Vector2d midpoint;
-//		double radius;
-//		bool ok;
-//
-//		ok = solveLeastSquaresCircleKasa(samplePoints, midpoint, radius);
-//
-//		Midpoints.push_back(midpoint);
-//
-//		// 以下代码为了调试
-//
-//    for(int i=0;i<msg_start_end.size();i++){
-//		cout<<"输出本轮圆弧计算得到的midpoint："<<endl;
-//		float x = midpoint(0,0);
-//		float y = midpoint(1,0);
-//
-//		// 装入mdis，及传感器扫描到的距离。
-//		M_dis_sensor.push_back(sqrt(x*x+y*y));
-//
-//
-//		cout<<"x:"<<x;
-//		cout<<" y:"<<y<<endl;
-//
-//		if(i==0){
-//			test_point.point.x = x;
-//			test_point.point.y = y;
-//			test_point.point.z = 0;
-//			test_point.header.frame_id = "/scan";
-//			test_point_pub.publish(test_point);
-//		}
-//		cout<<"------"<<endl;
-//
-//        if(i==1){
-//            test_point.point.x = x;
-//            test_point.point.y = y;
-//            test_point.point.z = 0;
-//            test_point.header.frame_id = "/scan";
-//            test_point_pub2.publish(test_point);
-//        }
-//        cout<<"------"<<endl;
-//
-//		// cout<<"打印mdis"<<M_dis_sensor<<endl;
-//
-//	}
-
-	for(int i=0;i<Points.size();i++){
-		get_reflocation(Points.at(i)(0.0),Points.at(i)(1.0));
-	}
-
-	matching_ref();
-	cout<<"matching_ref complete!"<<endl;
-
-	// 一下的部分是对机器人位置的最小二乘拟合，应该修改到先找有多少个维度，然后按照维度生成矩阵进行计算。
-	// 先把距离构成d，然后对应的距离所对应的反光板id放入vector_id
-
-	// 接着这里去除mdisreal中的0项
-	vector<float> vector_d;
-	vector<int> vector_id;
-	cout<<"mdisreal_cols:"<<M_dis_real.cols()<<endl;
-	for(int i=0;i<M_dis_real.cols();i++){
-		if(M_dis_real(0,i)>0){
-			vector_d.push_back(M_dis_real(0,i));
-			vector_id.push_back(i);
+		if(it == msg_start_end.begin())
+		{
+			test_point.point.x = point_x;
+			test_point.point.y = point_y;
+			test_point.point.z = 0;
+			test_point.header.frame_id = "/scan";
+			test_point_pub.publish(test_point);
 		}
+
+		if(it == msg_start_end.begin()+2)
+		{
+			test_point.point.x = point_x;
+			test_point.point.y = point_y;
+			test_point.point.z = 0;
+			test_point.header.frame_id = "/scan";
+			test_point_pub2.publish(test_point);
+		}
+		*/
+		Points.push_back(point);
+
+	}
+
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZ>);
+	cloud_in->width =8; //设置点云宽度
+	cloud_in->height=1; //设置点云为无序点云
+	cloud_in->is_dense=false;
+	cloud_in->points.resize(cloud_in->width*cloud_in->height);
+
+
+	cloud_out->width =8; //设置点云宽度
+	cloud_out->height=1; //设置点云为无序点云
+	cloud_out->is_dense=false;
+	cloud_out->points.resize(cloud_out->width*cloud_out->height);
+
+	//给申明的点云随机赋值
+	for(size_t i=0;i<Points.size();++i)
+	{
+		cloud_in->points[i].x=Points.at(i)(0);
+		cloud_in->points[i].y=Points.at(i)(1);
+		cloud_in->points[i].z=0;
+	}
+
+	//打印输入点云信息
+	std::cout<<"input cloudPoints"<<cloud_in->points.size()<<"data points to input:"<<std::endl;
+
+	for (size_t i = 0; i < cloud_in->points.size (); ++i)
+	{
+		std::cout << "    " <<cloud_in->points[i].x <<
+			" " << cloud_in->points[i].y <<
+			" " << cloud_in->points[i].z << std::endl;
 	}
 
 
-	int number_reflectors = vector_d.size();
-	cout<<"number_reflectors:"<<number_reflectors<<endl;
-    if(number_reflectors<number_reflectors)
-        return;
+	//设置全局点云
+	cloud_out->points[0].x = x_1;
+	cloud_out->points[0].y = y_1;
+
+	cloud_out->points[1].x = x_2;
+	cloud_out->points[1].y = y_2;
+
+	cloud_out->points[2].x = x_3;
+	cloud_out->points[2].y = y_3;
+
+	cloud_out->points[3].x = x_4;
+	cloud_out->points[3].y = y_4;
+
+	cloud_out->points[4].x = x_5;
+	cloud_out->points[4].y = y_5;
+
+	//打印平移后的点
+	std::cout<<"Transformed "<<cloud_in->points.size()<<"data points:"<<std::endl;
+
+	for (size_t i = 0; i < cloud_out->points.size (); ++i)
+		std::cout << "    " << cloud_out->points[i].x << " " <<
+			cloud_out->points[i].y << " " << cloud_out->points[i].z << std::endl;
+
+	//以上,实现了一个简单的点云刚体变换,以构造目标点云,并再次打印处数据集.
+
+	pcl::IterativeClosestPoint<pcl::PointXYZ,pcl::PointXYZ> icp; //创建一个IterativeClosestPoint的对象
+	icp.setInputSource(cloud_out); //设置源点云
+	icp.setInputTarget(cloud_in); //设置目标点云
+
+	pcl::PointCloud<pcl::PointXYZ> Final; //存储经过配准变换源点云后的点云
+	icp.align(Final);  //执行配准存储变换后的源点云到Final
+
+	//打印配准相关输入信息
+	std::cout<<"has converged: "<<icp.hasConverged()<<"  "<<"score: "<<icp.getFitnessScore()<<std::endl;
+
+	//打印输出最终估计的变换矩阵.
+	std::cout<<icp.getFinalTransformation()<<std::endl;
 
 
-	// 处理动态矩阵的问题
-
-	Eigen::MatrixXd matrix_a(number_reflectors,2);
-	Eigen::MatrixXd matrix_b(number_reflectors,1);
-
-	//Eigen::Matrix<float,4,2> matrix_a;
-	//Eigen::MatrixXd matrix_a(4,2);
-	//Eigen::Matrix<float,4,1> matrix_b;
-	//Eigen::MatrixXd matrix_b(4,1);
 
 
-	//matrix_a << 2*(x_1-x_4), 2*(y_1-y_4), 2*(x_2-x_4), 2*(y_2-y_4), 2*(x_3-x_4), 2*(y_3-y_4);
-
-//	cout<<"打印一下vector_d:";
-//	for(int i=0;i<number_reflectors;i++){
-//		cout<<vector_d.at(i)<<" ";
-//	}
-//	cout<<endl;
-//
-//	cout<<"打印一下vector_id:";
-//	for(int i=0;i<number_reflectors;i++){
-//		cout<<vector_id.at(i)<<" ";
-//	}
-//	cout<<endl;
-
-	for(int i=0;i<vector_id.size();i++){
-		matrix_a(i,0)=2*(xs.at(vector_id.at(i))-xs.at(vector_id.back()));
-		matrix_a(i,1)=2*(ys.at(vector_id.at(i))-ys.at(vector_id.back()));
-	}
-
-	for(int i=0;i<number_reflectors;i++){
-		matrix_b(i,0) = std::pow(xs.at(vector_id.at(i)),2)-std::pow(xs.at(vector_id.back()),2)+std::pow(ys.at(vector_id.at(i)),2)-std::pow(ys.at(vector_id.back()),2)+std::pow(vector_d.at(vector_id.back()),2)-std::pow(vector_d.at(vector_id.at(i)),2);
-	}
-
-	Eigen::MatrixXd matrix_ata;
-	Eigen::MatrixXd location_r;
-
-	matrix_ata = matrix_a.transpose()*matrix_a;
-
-	location_r = matrix_ata.inverse()*matrix_a.transpose()*matrix_b;
-
-	std::cout<<"输出位置： "<<location_r.transpose()<<std::endl;
-	std::cout<<"======"<<std::endl;
-
-	robot_location.point.x = location_r(0,0);
-	robot_location.point.y = location_r(1,0);
+	// 这里输出位置，需要改为输出odom类的信息用于karman_filter
+	robot_location.point.x = icp.getFinalTransformation()(0,3);
+	robot_location.point.y = icp.getFinalTransformation()(1,3);
 	robot_location.point.z = 0;
-	robot_location.header.frame_id = "odom";
+	robot_location.header.frame_id = "/scan";
 	robot_pub.publish(robot_location);
 
 }

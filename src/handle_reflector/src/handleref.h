@@ -6,6 +6,10 @@
 #include <tf/transform_listener.h>
 #include <iostream>
 #include <vector>
+#include <pcl/io/pcd_io.h> //io操作头文件
+#include <pcl/point_types.h> //点类型定义头文件
+#include <pcl/registration/icp.h> //ICP配准类所有相关的头文件
+
 
 #include <cmath>
 #include <ctime>
@@ -20,18 +24,12 @@ public:
   HandleRef();
   virtual ~HandleRef(){}
 
-  bool solveLeastSquaresCircleKasa(const  std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > &points, Eigen::Vector2d &midpoint, double &radius);
-
   float getDis(float x1, float y1, float x2, float y2);
   bool findcircles(std::vector<float> num, int count, std::vector<Eigen::Matrix2d>& info);
-//  void findPeaks(std::vector<float> num, int count);
-  void matching_ref( );
 
   //TF Scalar Listener
   tf::TransformListener transform_listener;
   tf::StampedTransform transform;
-
-  void get_reflocation(float x, float y);
 
   /*Callback Functions*/
   void scan_Callback(const sensor_msgs::LaserScan::ConstPtr &msg);

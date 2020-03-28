@@ -13,7 +13,18 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   geometry_msgs
+  pcl_ros
 )
+
+find_package(PCL REQUIRED)
+find_package(OpenCV REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+find_package(Eigen3 REQUIRED)
+include_directories( ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
+
+
 
 ## System dependencies are found with CMake's conventions
 #  find_package(Boost REQUIRED COMPONENTS system)
@@ -120,7 +131,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  "/usr/include/eigen3"
+  #"/usr/include/eigen3"
 )
 
 ## Declare a C++ library
