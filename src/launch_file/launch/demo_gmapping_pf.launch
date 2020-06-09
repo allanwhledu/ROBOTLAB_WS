@@ -16,6 +16,8 @@ slam_gmapping
 
   #### start laser filter ########################################
 
+
+  <include file="$(find pepperl_fuchs_r2000)/launch/r2000.launch"/>
   <include file="$(find laser_filters)/examples/intensity_filter_example.launch"/>
 
   #### start the laser scan_matcher ##############################
