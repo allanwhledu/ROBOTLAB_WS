@@ -30,7 +30,7 @@ slam_gmapping
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <remap from="/scan" to="/r2000_node/scan"/>
     <param name="map_udpate_interval" value="1.0"/>
-    <param name="maxUrange" value="5.0"/>
+    <param name="maxUrange" value="10.0"/>
     <param name="sigma" value="0.1"/>
     <param name="kernelSize" value="1"/>
     <param name="lstep" value="0.15"/>
