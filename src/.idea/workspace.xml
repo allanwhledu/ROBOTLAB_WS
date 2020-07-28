@@ -31,6 +31,7 @@
       <config projectName="Project" targetName="pcl_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="clean_test_results" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="run_tests_laser_filters_gtest_test_shadow_detector" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_cpp" />
@@ -46,11 +47,13 @@
       <config projectName="Project" targetName="laser_scan_sparsifier_nodelet" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_cpp" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="laser_ortho_projector" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_eus" />
       <config projectName="Project" targetName="nodelet_generate_messages_nodejs" />
       <config projectName="Project" targetName="actionlib_generate_messages_cpp" />
-      <config projectName="Project" targetName="std_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="laser_scan_splitter_node" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_py" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest" />
       <config projectName="Project" targetName="handleref" />
@@ -60,10 +63,9 @@
       <config projectName="Project" targetName="run_tests_laser_filters_gtest" />
       <config projectName="Project" targetName="test_scan_filter_chain" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_eus" />
-      <config projectName="Project" targetName="nodelet_topic_tools_gencfg" />
       <config projectName="Project" targetName="_catkin_empty_exported_target" />
       <config projectName="Project" targetName="_run_tests_laser_scan_matcher" />
-      <config projectName="Project" targetName="run_tests" />
+      <config projectName="Project" targetName="nodelet_topic_tools_gencfg" />
       <config projectName="Project" targetName="nodelet_generate_messages_lisp" />
       <config projectName="Project" targetName="bond_generate_messages_lisp" />
       <config projectName="Project" targetName="roscpp_generate_messages_nodejs" />
@@ -74,32 +76,30 @@
       <config projectName="Project" targetName="gtest" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest_test_covariance.test" />
-      <config projectName="Project" targetName="tf2_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_eus" />
       <config projectName="Project" targetName="laser_scan_splitter_nodelet" />
       <config projectName="Project" targetName="topic_tools_generate_messages_py" />
-      <config projectName="Project" targetName="std_srvs_generate_messages_cpp" />
       <config projectName="Project" targetName="gmock_main" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="topic_tools_generate_messages_eus" />
       <config projectName="Project" targetName="nodelet_generate_messages_cpp" />
-      <config projectName="Project" targetName="laser_ortho_projector" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="run_tests_laser_filters_rostest" />
       <config projectName="Project" targetName="laser_scan_sparsifier_node" />
       <config projectName="Project" targetName="polar_scan_matcher" />
-      <config projectName="Project" targetName="sensor_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="tf_generate_messages_nodejs" />
       <config projectName="Project" targetName="tests" />
       <config projectName="Project" targetName="laser_ortho_projector_node" />
       <config projectName="Project" targetName="geometry_msgs_generate_messages_eus" />
-      <config projectName="Project" targetName="laser_scan_splitter" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="_run_tests_laser_filters_rostest_test_test_scan_filter_chain.launch" />
       <config projectName="Project" targetName="topic_tools_generate_messages_nodejs" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_py" />
       <config projectName="Project" targetName="generic_laser_filter_node" />
       <config projectName="Project" targetName="run_tests_laser_filters" />
-      <config projectName="Project" targetName="tf_generate_messages_py" />
-      <config projectName="Project" targetName="std_srvs_generate_messages_eus" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="_run_tests_laser_filters_rostest" />
       <config projectName="Project" targetName="clean_test_results_laser_filters" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_lisp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest_test_run.test" />
@@ -109,6 +109,7 @@
       <config projectName="Project" targetName="topic_tools_generate_messages_lisp" />
       <config projectName="Project" targetName="r2000_node" />
       <config projectName="Project" targetName="roscpp_generate_messages_py" />
+      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest" />
       <config projectName="Project" targetName="std_srvs_generate_messages_nodejs" />
       <config projectName="Project" targetName="r2000_driver" />
       <config projectName="Project" targetName="roscpp_generate_messages_eus" />
@@ -117,20 +118,18 @@
       <config projectName="Project" targetName="geometry_msgs_generate_messages_py" />
       <config projectName="Project" targetName="dynamic_reconfigure_gencfg" />
       <config projectName="Project" targetName="actionlib_generate_messages_lisp" />
-      <config projectName="Project" targetName="tf2_msgs_generate_messages_cpp" />
-      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_cpp" />
       <config projectName="Project" targetName="bond_generate_messages_py" />
       <config projectName="Project" targetName="geometry_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="topic_tools_generate_messages_cpp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest_test_covariance.test" />
       <config projectName="Project" targetName="std_srvs_generate_messages_lisp" />
       <config projectName="Project" targetName="ncd_parser" />
-      <config projectName="Project" targetName="_run_tests_laser_filters_rostest" />
-      <config projectName="Project" targetName="actionlib_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="run_tests" />
       <config projectName="Project" targetName="pcl_ros_gencfg" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_eus" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_lisp" />
-      <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="tf_generate_messages_py" />
       <config projectName="Project" targetName="download_extra_data" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_nodejs" />
@@ -141,6 +140,7 @@
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="_run_tests_laser_filters" />
       <config projectName="Project" targetName="std_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="laser_scan_splitter" />
       <config projectName="Project" targetName="actionlib_generate_messages_nodejs" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_eus" />
     </generated>
@@ -153,6 +153,7 @@
   <component name="ChangeListManager">
     <list default="true" id="bfd8f9ee-e37d-43c1-b2a7-a22e55b70ce6" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/launch_file/bag/2020-06-02-17-29-25.bag" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf.launch" beforeDir="false" afterPath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf.launch" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -1104,6 +1105,8 @@
       <workItem from="1591237825218" duration="3000" />
       <workItem from="1591320605562" duration="1247000" />
       <workItem from="1591384816994" duration="5000" />
+      <workItem from="1591780223917" duration="448000" />
+      <workItem from="1592128744849" duration="14000" />
     </task>
     <servers />
   </component>
@@ -1115,6 +1118,10 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="482" y="188" width="1280" height="730" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1591320957349" />
+    <state x="684" y="291" width="618" height="522" key="find.popup" timestamp="1591780234006">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="684" y="291" width="618" height="522" key="find.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1591780234006" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
