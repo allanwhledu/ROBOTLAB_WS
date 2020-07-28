@@ -151,11 +151,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bfd8f9ee-e37d-43c1-b2a7-a22e55b70ce6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf.launch" beforeDir="false" afterPath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf_bag.launch" beforeDir="false" afterPath="$PROJECT_DIR$/launch_file/launch/demo_gmapping_pf_bag.launch" afterDir="false" />
-    </list>
+    <list default="true" id="bfd8f9ee-e37d-43c1-b2a7-a22e55b70ce6" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -1107,7 +1103,7 @@
       <workItem from="1591384816994" duration="5000" />
       <workItem from="1591780223917" duration="448000" />
       <workItem from="1592128744849" duration="14000" />
-      <workItem from="1595940311818" duration="690000" />
+      <workItem from="1595940311818" duration="1313000" />
     </task>
     <servers />
   </component>
