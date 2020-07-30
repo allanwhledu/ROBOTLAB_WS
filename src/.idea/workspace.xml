@@ -19,7 +19,6 @@
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="laser_scan_matcher" />
       <config projectName="Project" targetName="doxygen" />
-      <config projectName="Project" targetName="roscpp_generate_messages_lisp" />
       <config projectName="Project" targetName="nodelet_generate_messages_eus" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_py" />
       <config projectName="Project" targetName="bond_generate_messages_nodejs" />
@@ -29,8 +28,10 @@
       <config projectName="Project" targetName="laser_scan_matcher_nodelet" />
       <config projectName="Project" targetName="laser_scan_matcher_node" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="bond_generate_messages_eus" />
       <config projectName="Project" targetName="clean_test_results" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="run_tests_laser_filters_gtest_test_shadow_detector" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_cpp" />
@@ -39,18 +40,20 @@
       <config projectName="Project" targetName="bond_generate_messages_cpp" />
       <config projectName="Project" targetName="actionlib_generate_messages_py" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_nodejs" />
-      <config projectName="Project" targetName="nav_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="polar_scan_matcher" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_py" />
       <config projectName="Project" targetName="driver_example" />
       <config projectName="Project" targetName="psm_node" />
       <config projectName="Project" targetName="laser_scan_sparsifier_nodelet" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_cpp" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest_test_run.test" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_eus" />
       <config projectName="Project" targetName="nodelet_generate_messages_nodejs" />
       <config projectName="Project" targetName="actionlib_generate_messages_cpp" />
-      <config projectName="Project" targetName="std_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="laser_scan_splitter_node" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_py" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest" />
       <config projectName="Project" targetName="handleref" />
@@ -74,9 +77,8 @@
       <config projectName="Project" targetName="gtest" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest_test_covariance.test" />
-      <config projectName="Project" targetName="tf2_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_eus" />
       <config projectName="Project" targetName="laser_scan_splitter_nodelet" />
-      <config projectName="Project" targetName="topic_tools_generate_messages_py" />
       <config projectName="Project" targetName="std_srvs_generate_messages_cpp" />
       <config projectName="Project" targetName="gmock_main" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_lisp" />
@@ -85,8 +87,6 @@
       <config projectName="Project" targetName="laser_ortho_projector" />
       <config projectName="Project" targetName="run_tests_laser_filters_rostest" />
       <config projectName="Project" targetName="laser_scan_sparsifier_node" />
-      <config projectName="Project" targetName="polar_scan_matcher" />
-      <config projectName="Project" targetName="sensor_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="tf_generate_messages_nodejs" />
       <config projectName="Project" targetName="tests" />
@@ -98,51 +98,51 @@
       <config projectName="Project" targetName="pcl_msgs_generate_messages_py" />
       <config projectName="Project" targetName="generic_laser_filter_node" />
       <config projectName="Project" targetName="run_tests_laser_filters" />
-      <config projectName="Project" targetName="tf_generate_messages_py" />
-      <config projectName="Project" targetName="std_srvs_generate_messages_eus" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="_run_tests_laser_filters_rostest" />
+      <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_eus" />
       <config projectName="Project" targetName="clean_test_results_laser_filters" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_lisp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest_test_run.test" />
       <config projectName="Project" targetName="scan_to_cloud_converter_node" />
       <config projectName="Project" targetName="scan_to_scan_filter_chain" />
-      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest_test_run.test" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_py" />
       <config projectName="Project" targetName="topic_tools_generate_messages_lisp" />
       <config projectName="Project" targetName="r2000_node" />
       <config projectName="Project" targetName="roscpp_generate_messages_py" />
+      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest" />
       <config projectName="Project" targetName="std_srvs_generate_messages_nodejs" />
       <config projectName="Project" targetName="r2000_driver" />
       <config projectName="Project" targetName="roscpp_generate_messages_eus" />
-      <config projectName="Project" targetName="laser_ortho_projector_nodelet" />
       <config projectName="Project" targetName="sensor_msgs_generate_messages_py" />
       <config projectName="Project" targetName="geometry_msgs_generate_messages_py" />
       <config projectName="Project" targetName="dynamic_reconfigure_gencfg" />
       <config projectName="Project" targetName="actionlib_generate_messages_lisp" />
       <config projectName="Project" targetName="tf2_msgs_generate_messages_cpp" />
-      <config projectName="Project" targetName="_run_tests_laser_scan_matcher_rostest" />
       <config projectName="Project" targetName="bond_generate_messages_py" />
       <config projectName="Project" targetName="geometry_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="topic_tools_generate_messages_cpp" />
       <config projectName="Project" targetName="run_tests_laser_scan_matcher_rostest_test_covariance.test" />
       <config projectName="Project" targetName="std_srvs_generate_messages_lisp" />
       <config projectName="Project" targetName="ncd_parser" />
-      <config projectName="Project" targetName="_run_tests_laser_filters_rostest" />
+      <config projectName="Project" targetName="roscpp_generate_messages_lisp" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="pcl_ros_gencfg" />
       <config projectName="Project" targetName="pcl_msgs_generate_messages_eus" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_lisp" />
-      <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="tf_generate_messages_py" />
       <config projectName="Project" targetName="download_extra_data" />
       <config projectName="Project" targetName="nav_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_nodejs" />
       <config projectName="Project" targetName="tf_generate_messages_lisp" />
       <config projectName="Project" targetName="_run_tests_laser_filters_gtest_test_shadow_detector" />
       <config projectName="Project" targetName="tf2_msgs_generate_messages_py" />
-      <config projectName="Project" targetName="bond_generate_messages_eus" />
+      <config projectName="Project" targetName="topic_tools_generate_messages_py" />
       <config projectName="Project" targetName="actionlib_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="_run_tests_laser_filters" />
       <config projectName="Project" targetName="std_msgs_generate_messages_nodejs" />
       <config projectName="Project" targetName="actionlib_generate_messages_nodejs" />
-      <config projectName="Project" targetName="dynamic_reconfigure_generate_messages_eus" />
+      <config projectName="Project" targetName="laser_ortho_projector_nodelet" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -154,6 +154,8 @@
     <list default="true" id="bfd8f9ee-e37d-43c1-b2a7-a22e55b70ce6" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handle_reflector/src/handleref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/handle_reflector/src/handleref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handle_reflector/src/handleref.h" beforeDir="false" afterPath="$PROJECT_DIR$/handle_reflector/src/handleref.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools-indigo/laser_scan_matcher/demo/demo_gmapping.rviz" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools-indigo/laser_scan_matcher/demo/demo_gmapping.rviz" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -193,7 +195,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/CMakeLists.txt" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/handle_reflector/src" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -201,6 +203,11 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/handle_reflector/src" />
+    </key>
   </component>
   <component name="RunManager" selected="CMake Application.handleref">
     <configuration name="test_scan_filter_chain" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="test_scan_filter_chain" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="test_scan_filter_chain" TEST_MODE="SUITE_TEST">
@@ -920,8 +927,6 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Google Test.test_scan_filter_chain" />
-      <item itemvalue="Google Test.test_shadow_detector" />
       <item itemvalue="CMake Application._catkin_empty_exported_target" />
       <item itemvalue="CMake Application._run_tests_laser_filters" />
       <item itemvalue="CMake Application._run_tests_laser_filters_gtest" />
@@ -1061,6 +1066,8 @@
       <item itemvalue="CMake Application.topic_tools_generate_messages_lisp" />
       <item itemvalue="CMake Application.topic_tools_generate_messages_nodejs" />
       <item itemvalue="CMake Application.topic_tools_generate_messages_py" />
+      <item itemvalue="Google Test.test_scan_filter_chain" />
+      <item itemvalue="Google Test.test_shadow_detector" />
     </list>
   </component>
   <component name="SvnConfiguration">
@@ -1108,6 +1115,9 @@
       <workItem from="1592128744849" duration="14000" />
       <workItem from="1595940311818" duration="1313000" />
       <workItem from="1596004669440" duration="10000" />
+      <workItem from="1596086738697" duration="954000" />
+      <workItem from="1596087711450" duration="3960000" />
+      <workItem from="1596094561269" duration="12491000" />
     </task>
     <servers />
   </component>
@@ -1118,6 +1128,50 @@
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.launch" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1175" y="694" width="639" height="511" key="#xdebugger.evaluate" timestamp="1596099214887">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state x="1175" y="694" width="639" height="511" key="#xdebugger.evaluate/67.27.2493.1413@67.27.2493.1413" timestamp="1596099214887" />
+    <state width="417" height="506" key="DebuggerActiveHint" timestamp="1596087908182">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="417" height="506" key="DebuggerActiveHint/67.27.2493.1413@67.27.2493.1413" timestamp="1596087908182" />
+    <state x="1096" y="490" width="424" height="484" key="FileChooserDialogImpl" timestamp="1596087190420">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state x="1096" y="490" width="424" height="484" key="FileChooserDialogImpl/67.27.2493.1413@67.27.2493.1413" timestamp="1596087190420" />
+    <state width="2447" height="432" key="GridCell.Tab.0.bottom" timestamp="1596117088529">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.0.bottom/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088529" />
+    <state width="2447" height="432" key="GridCell.Tab.0.center" timestamp="1596117088529">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.0.center/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088529" />
+    <state width="2447" height="432" key="GridCell.Tab.0.left" timestamp="1596117088528">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.0.left/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088528" />
+    <state width="2447" height="432" key="GridCell.Tab.0.right" timestamp="1596117088529">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.0.right/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088529" />
+    <state width="2447" height="432" key="GridCell.Tab.1.bottom" timestamp="1596117088457">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.1.bottom/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088457" />
+    <state width="2447" height="432" key="GridCell.Tab.1.center" timestamp="1596117088457">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.1.center/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088457" />
+    <state width="2447" height="432" key="GridCell.Tab.1.left" timestamp="1596117088456">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.1.left/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088456" />
+    <state width="2447" height="432" key="GridCell.Tab.1.right" timestamp="1596117088457">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state width="2447" height="432" key="GridCell.Tab.1.right/67.27.2493.1413@67.27.2493.1413" timestamp="1596117088457" />
     <state x="482" y="188" width="1280" height="730" key="SettingsEditor" timestamp="1591320957349">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -1126,15 +1180,23 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="684" y="291" width="618" height="522" key="find.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1591780234006" />
+    <state x="1027" y="518" width="563" height="425" key="refactoring.ChangeSignatureDialog" timestamp="1596091674993">
+      <screen x="67" y="27" width="2493" height="1413" />
+    </state>
+    <state x="1027" y="518" width="563" height="425" key="refactoring.ChangeSignatureDialog/67.27.2493.1413@67.27.2493.1413" timestamp="1596091674993" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
-        <watch expression="index" />
-        <watch expression="min" />
-        <watch expression="point_x" />
-        <watch expression="point_y" />
-        <watch expression="i" />
+        <watch expression="xs" />
+        <watch expression="ys" />
+        <watch expression="M_ref_sensor" language="ObjectiveC" />
+        <watch expression="M_ref_real" language="ObjectiveC" />
+        <watch expression="reflectors.x.size()" language="ObjectiveC" />
+        <watch expression="reflector_odom_list.size()" language="ObjectiveC" />
+        <watch expression="reflector_odom_filered_list" />
+        <watch expression="reflector_map_list" />
+        <watch expression="reflector_odom_list" />
       </configuration>
     </watches-manager>
   </component>
