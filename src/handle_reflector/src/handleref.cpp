@@ -40,7 +40,7 @@ std::vector<float> valid_dis;
 
 HandleRef::HandleRef()
 {
-	scan_sub = n.subscribe<sensor_msgs::LaserScan>("/scan",1,&HandleRef::scan_Callback,this);
+	scan_sub = n.subscribe<sensor_msgs::LaserScan>("/scan_filtered",1,&HandleRef::scan_Callback,this);
 	robot_pub = n.advertise<geometry_msgs::PointStamped>("robot_location", 1);
 	test_point_pub = n.advertise<geometry_msgs::PointStamped>("test_point", 1);
 }
